@@ -1,0 +1,21 @@
+###
+GET http://localhost:3000/
+
+###
+POST http://localhost:3000/register
+Content-Type: application/json
+
+{
+  "name": "Khant Si Thu",
+  "email": "dev.kst.aaron@gmail.com",
+  "password": "supercoolpw-2023"
+}
+
+###
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "email": "dev.kst.aaron@gmail.com",
+  "password": "supercoolpw-2023"
+}
