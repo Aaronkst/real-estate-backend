@@ -44,6 +44,9 @@ export class Users {
   @Column({ unique: true })
   email: string;
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   @CreateDateColumn({
     type: "timestamp",
     default: () => "CURRENT_TIMESTAMP(6)",

@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { IUserPublic } from "../api/users/users.interface";
+import { IUserPublic, IUserRefresh } from "../api/users/users.interface";
 import { UsersService } from "../api/users/users.service";
+import { randomUUID } from "crypto";
 
 @Injectable()
 export class AuthService {
@@ -23,14 +24,35 @@ export class AuthService {
     }
   }
 
-  async login(user: IUserPublic) {
-    const payload = { id: user.id };
-    const expiresIn = "24h";
+  async login(user: IUserPublic): Promise<IUserRefresh> {
     const expiredAt = new Date();
+
+    const accessExpired = new Date(
+      expiredAt.setDate(expiredAt.getHours() + 24),
+    );
+    const refreshExpired = new Date(expiredAt.setDate(expiredAt.getDate() + 7));
+
+    const refreshToken = randomUUID();
+
+    await this.users.update(user.id, { refreshToken });
+
+    const accessPayload = { id: user.id };
+    const refreshPayload = { token: refreshToken };
+
     return {
       user,
-      access_token: this.jwtService.sign(payload, { expiresIn }),
-      expired_at: expiredAt.setHours(expiredAt.getHours() + 24),
+      token: {
+        access: {
+          token: this.jwtService.sign(accessPayload, { expiresIn: "24h" }),
+          expired_at: accessExpired,
+        },
+        refresh: {
+          token: this.jwtService.sign(refreshPayload, {
+            expiresIn: "1week",
+          }),
+          expired_at: refreshExpired,
+        },
+      },
     };
   }
 }
