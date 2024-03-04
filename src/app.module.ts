@@ -7,6 +7,9 @@ import { AppController } from "./app.controller";
 import { Users } from "./api/users/users.entity";
 import { UsersModule } from "./api/users/users.module";
 
+import { Properties } from "./api/properties/properties.entity";
+import { PropertiesModule } from "./api/properties/properties.module";
+
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
 import { AuthModule } from "./auth/auth.module";
@@ -25,7 +28,7 @@ const DATABASE: DynamicModule = TypeOrmModule.forRoot({
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  entities: [Users],
+  entities: [Users, Properties],
   synchronize: true,
 });
 
@@ -34,7 +37,7 @@ const STATIC: DynamicModule = ServeStaticModule.forRoot({
 });
 
 @Module({
-  imports: [ENV, DATABASE, STATIC, UsersModule, AuthModule],
+  imports: [ENV, DATABASE, STATIC, UsersModule, PropertiesModule, AuthModule],
   controllers: [AppController],
 })
 export class AppModule {}
