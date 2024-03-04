@@ -54,6 +54,9 @@ export class Users {
   @Column({ name: "is_agent", default: false, type: "boolean" })
   isAgent?: boolean;
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   @CreateDateColumn({
     type: "timestamp",
     default: () => "CURRENT_TIMESTAMP(6)",

@@ -110,4 +110,23 @@ export class UsersController {
       );
     }
   }
+
+  @Post("/refresh")
+  async refresh(
+    @Body() { token }: { token: string },
+  ): Promise<ISuccessResponse> {
+    try {
+      return {
+        status: "success",
+        data: await this.users.refresh(token),
+        timestamp: new Date().getTime(),
+      };
+    } catch (e) {
+      console.log(e);
+      throw new HttpException(
+        "Internal Server Error",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

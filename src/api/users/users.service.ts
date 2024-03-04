@@ -1,15 +1,23 @@
 import { Injectable } from "@nestjs/common";
-import { IUserInsert, IUserList, IUserPublic } from "./users.interface";
+import {
+  IUserInsert,
+  IUserList,
+  IUserPublic,
+  IUserRefresh,
+} from "./users.interface";
 
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Users } from "./users.entity";
+import { JwtService } from "@nestjs/jwt";
+import { randomUUID } from "crypto";
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(Users)
     private users: Repository<Users>,
+    private jwtService: JwtService,
   ) {}
 
   async add(payload: IUserInsert): Promise<IUserPublic> {
@@ -107,6 +115,53 @@ export class UsersService {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  async refresh(token: string): Promise<IUserRefresh> {
+    try {
+      const isValidToken = this.jwtService.verify(token, {
+        ignoreExpiration: false,
+        secret: process.env.JWT_SECRET,
+      });
+      if (!isValidToken) throw new Error("Invalid Token");
+
+      const user = await this.users.findOne({ where: { refreshToken: token } });
+      if (!user) throw new Error("Invalid Token");
+
+      const expiredAt = new Date();
+
+      const accessExpired = new Date(
+        expiredAt.setDate(expiredAt.getHours() + 24),
+      );
+      const refreshExpired = new Date(
+        expiredAt.setDate(expiredAt.getDate() + 7),
+      );
+
+      const refreshToken = randomUUID();
+
+      await this.users.update(user.id, { refreshToken });
+
+      const accessPayload = { id: user.id };
+      const refreshPayload = { token: refreshToken };
+
+      return {
+        user,
+        token: {
+          access: {
+            token: this.jwtService.sign(accessPayload, { expiresIn: "24h" }),
+            expired_at: accessExpired,
+          },
+          refresh: {
+            token: this.jwtService.sign(refreshPayload, {
+              expiresIn: "1week",
+            }),
+            expired_at: refreshExpired,
+          },
+        },
+      };
+    } catch (e) {
+      throw e;
     }
   }
 }
