@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { hash, compare } from "bcrypt";
+import { IUserTypes } from "./users.interface";
 
 @Entity()
 export class Users {
@@ -43,6 +44,15 @@ export class Users {
   @IsEmail()
   @Column({ unique: true })
   email: string;
+
+  @Column({ nullable: true })
+  image?: string;
+
+  @Column({ nullable: true })
+  type: IUserTypes;
+
+  @Column({ name: "is_agent", default: false, type: "boolean" })
+  isAgent?: boolean;
 
   @CreateDateColumn({
     type: "timestamp",
