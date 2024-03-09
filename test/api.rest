@@ -2,20 +2,31 @@
 GET http://localhost:3000/
 
 ###
-POST http://localhost:3000/register
+PUT http://localhost:3000/api/users/register
 Content-Type: application/json
 
 {
   "name": "Khant Si Thu",
-  "email": "dev.kst.aaron@gmail.com",
-  "password": "supercoolpw-2023"
+  "email": "kst.aaron@gmail.com",
+  "password": "Hyperbeast99",
+  "type": "owner"
 }
 
 ###
-POST http://localhost:3000/login
+POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-  "email": "dev.kst.aaron@gmail.com",
-  "password": "supercoolpw-2023"
+  "email": "kst.aaron@gmail.com",
+  "password": "Hyperbeast99"
+}
+
+###
+PUT http://localhost:3000/api/properties/register/sale
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MzYxZjUwLTg2ZmQtNDg4Yi1iYTJjLWM2NTZiZTNjN2Y3YyIsImlhdCI6MTcwOTk5ODA0OSwiZXhwIjoxNzEwMDg0NDQ5fQ.6AspPvt8SrXx7XDjA9QNFDQI7XB15zc_h-KhP9_QBmU
+
+{
+  "email": "aaron.kst99@gmail.com",
+  "password": "Hyperbeast99"
 }
