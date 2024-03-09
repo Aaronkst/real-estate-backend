@@ -16,7 +16,9 @@ export class RoleGuard implements CanActivate {
       throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
     try {
-      return this.type.includes(user.type);
+      return Array.isArray(this.type)
+        ? this.type.includes(user.type)
+        : this.type === user.type;
     } catch (ex) {
       throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
