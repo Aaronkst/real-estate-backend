@@ -27,7 +27,6 @@ export class WsGuard implements CanActivate {
         });
       });
     } catch (ex) {
-      console.log(ex);
       throw new WsException("Unauthorized");
     }
   }

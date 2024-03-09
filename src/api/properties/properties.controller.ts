@@ -15,12 +15,13 @@ import { ISuccessResponse } from "../../app.interface";
 import { CreateSaleListDto, CreateRentListDto } from "./properties.dtos";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { Properties } from "./properties.entity";
+import { RoleGuard } from "src/auth/role-auth.guard";
 
 @Controller("api/properties")
 export class PropertiesController {
   constructor(private readonly properties: PropertiesService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, new RoleGuard("owner"))
   @Put("/register/sale")
   async addSale(
     @Request() req,
@@ -68,7 +69,6 @@ export class PropertiesController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get("/list")
   async list(@Query() query): Promise<ISuccessResponse> {
     try {
@@ -86,7 +86,6 @@ export class PropertiesController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get("/find")
   async find(@Request() req): Promise<ISuccessResponse> {
     try {
