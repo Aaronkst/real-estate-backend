@@ -62,7 +62,8 @@ export class PropertiesService {
         })
         .skip(skip ? parseInt(skip) : 0)
         .take(25)
-        .orderBy("properties.createdAt", "ASC")
+        .orderBy("properties.createdAt", "DESC")
+        .orderBy("properties.boosted", "DESC")
         .getMany();
 
       const count = await this.properties.count();
