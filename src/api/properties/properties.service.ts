@@ -4,6 +4,8 @@ import { IPropertyInsert, IPropertyList } from "./properties.interface";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Properties } from "./properties.entity";
+import { Users } from "../users/users.entity";
+import { PropertiesListDto } from "./properties.dtos";
 
 @Injectable()
 export class PropertiesService {
@@ -12,36 +14,57 @@ export class PropertiesService {
     private properties: Repository<Properties>,
   ) {}
 
-  async addSale(payload: IPropertyInsert): Promise<Properties> {
+  async addSale(
+    payload: IPropertyInsert,
+    currentUser: Users,
+  ): Promise<Properties> {
     try {
       const properties = new Properties();
+      const user = new Users();
       Object.keys(payload).forEach((key) => (properties[key] = payload[key]));
+      user.id = currentUser.id;
+      properties.availableDate = new Date();
+      properties.listBy = user;
       return this.properties.save(properties);
     } catch (e) {
       throw e;
     }
   }
 
-  async addRent(payload: IPropertyInsert): Promise<Properties> {
+  async addRent(
+    payload: IPropertyInsert,
+    currentUser: Users,
+  ): Promise<Properties> {
     try {
       const properties = new Properties();
+      const user = new Users();
       Object.keys(payload).forEach((key) => (properties[key] = payload[key]));
+      user.id = currentUser.id;
+      properties.availableDate = new Date();
+      properties.listBy = user;
       return this.properties.save(properties);
     } catch (e) {
       throw e;
     }
   }
 
-  async list(skip?: string): Promise<IPropertyList> {
+  async list({
+    skip,
+    ...findOptions
+  }: PropertiesListDto): Promise<IPropertyList> {
     try {
-      const next = parseInt(skip) + 25;
-      const properties = await this.properties.find({
-        skip: parseInt(skip),
-        take: 25,
-        order: {
-          createdAt: "ASC",
-        },
-      });
+      const next = (skip ? parseInt(skip) : 0) + 25;
+      const properties = await this.properties
+        .createQueryBuilder("properties")
+        .leftJoinAndSelect("properties.listBy", "users")
+        .where({
+          ...findOptions,
+        })
+        .skip(skip ? parseInt(skip) : 0)
+        .take(25)
+        .orderBy("properties.createdAt", "ASC")
+        .getMany();
+
       const count = await this.properties.count();
 
       return { properties, count, next };

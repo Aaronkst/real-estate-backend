@@ -4,20 +4,24 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
 import {
   IPropertySaleEstablished,
   IPropertySaleMethod,
   IPropertyTypes,
 } from "./properties.interface";
+import { Users } from "../users/users.entity";
 
 @Entity()
 export class Properties {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ name: "list_by" })
-  listBy: string;
+  @ManyToOne(() => Users, (user) => user.id)
+  @JoinColumn({ name: "list_by" })
+  listBy: Users;
 
   @Column()
   name: string;
@@ -25,11 +29,11 @@ export class Properties {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ name: "cover_image", type: "text", array: true })
+  @Column({ name: "cover_image", type: "text" })
   coverImage: string;
 
   @Column({ type: "text", array: true })
-  images: string;
+  images: string[];
 
   @Column()
   address: string;
@@ -52,22 +56,22 @@ export class Properties {
   @Column({ name: "listing_type" })
   listingType: IPropertyTypes;
 
-  @Column({ name: "sale_established" })
+  @Column({ name: "sale_established", nullable: true })
   saleEstablished: IPropertySaleEstablished;
 
   @Column({ name: "sale_is_offered", type: "boolean", default: false })
   saleIsOffered?: boolean;
 
-  @Column({ name: "sale_method" })
+  @Column({ name: "sale_method", nullable: true })
   saleMethod: IPropertySaleMethod;
 
-  @Column({ name: "rent_furnished", type: "boolean" })
+  @Column({ name: "rent_furnished", type: "boolean", default: false })
   rentFurnished: boolean;
 
-  @Column({ name: "rent_pets", type: "boolean" })
+  @Column({ name: "rent_pets", type: "boolean", default: false })
   rentPets: boolean;
 
-  @Column({ name: "rent_deposit", type: "boolean" })
+  @Column({ name: "rent_deposit", type: "boolean", default: false })
   rentDeposit: boolean;
 
   @Column()
@@ -103,8 +107,8 @@ export class Properties {
   @Column({ name: "climate_energy", type: "text", array: true })
   climateEnergy: string[];
 
-  @Column({ type: "text", array: true })
-  keywords: string;
+  @Column({ type: "text", array: true, default: [] })
+  keywords: string[];
 
   @CreateDateColumn({
     type: "timestamp",

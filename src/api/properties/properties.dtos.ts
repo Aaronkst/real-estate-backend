@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
 import {
   IPropertySaleEstablished,
   IPropertySaleMethod,
@@ -14,8 +14,9 @@ class CreateListingDto {
   @IsNotEmpty()
   coverImage: string;
 
+  @IsString({ each: true })
   @IsNotEmpty()
-  images: string;
+  images: string[];
 
   @IsNotEmpty()
   address: string;
@@ -57,12 +58,15 @@ class CreateListingDto {
   @IsNotEmpty()
   height: number;
 
+  @IsString({ each: true })
   @IsNotEmpty()
   indoorFeatures: string[];
 
+  @IsString({ each: true })
   @IsNotEmpty()
   outdoorFeatures: string[];
 
+  @IsString({ each: true })
   @IsNotEmpty()
   climateEnergy: string[];
 }
@@ -86,4 +90,13 @@ export class CreateRentListDto extends CreateListingDto {
 
   @IsNotEmpty()
   rentDeposit: boolean;
+}
+
+export class PropertiesListDto {
+  skip?: string;
+  listingType?: string;
+  price?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  carparks?: string;
 }

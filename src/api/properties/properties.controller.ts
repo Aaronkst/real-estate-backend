@@ -12,7 +12,11 @@ import {
 } from "@nestjs/common";
 import { PropertiesService } from "./properties.service";
 import { ISuccessResponse } from "../../app.interface";
-import { CreateSaleListDto, CreateRentListDto } from "./properties.dtos";
+import {
+  CreateSaleListDto,
+  CreateRentListDto,
+  PropertiesListDto,
+} from "./properties.dtos";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { Properties } from "./properties.entity";
 import { RoleGuard } from "src/auth/role-auth.guard";
@@ -31,13 +35,16 @@ export class PropertiesController {
       const { user } = req;
       return {
         status: "success",
-        data: await this.properties.addSale({
-          listBy: user.id,
-          ...payload,
-        }),
+        data: await this.properties.addSale(
+          {
+            ...payload,
+          },
+          user,
+        ),
         timestamp: new Date().getTime(),
       };
     } catch (e) {
+      console.log(e);
       throw new HttpException(
         "Internal Server Error",
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -45,7 +52,7 @@ export class PropertiesController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, new RoleGuard("owner"))
   @Put("/register/rent")
   async addRent(
     @Request() req,
@@ -55,10 +62,12 @@ export class PropertiesController {
       const { user } = req;
       return {
         status: "success",
-        data: await this.properties.addRent({
-          listBy: user.id,
-          ...payload,
-        }),
+        data: await this.properties.addRent(
+          {
+            ...payload,
+          },
+          user,
+        ),
         timestamp: new Date().getTime(),
       };
     } catch (e) {
@@ -70,11 +79,11 @@ export class PropertiesController {
   }
 
   @Get("/list")
-  async list(@Query() query): Promise<ISuccessResponse> {
+  async list(@Query() query: PropertiesListDto): Promise<ISuccessResponse> {
     try {
       return {
         status: "success",
-        data: await this.properties.list(query.skip || "0"),
+        data: await this.properties.list(query),
         timestamp: new Date().getTime(),
       };
     } catch (e) {
