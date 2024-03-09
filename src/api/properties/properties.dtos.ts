@@ -69,6 +69,8 @@ class CreateListingDto {
   @IsString({ each: true })
   @IsNotEmpty()
   climateEnergy: string[];
+
+  boosted?: boolean;
 }
 
 export class CreateSaleListDto extends CreateListingDto {

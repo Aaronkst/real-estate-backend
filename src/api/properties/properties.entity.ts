@@ -125,4 +125,7 @@ export class Properties {
 
   @Column({ default: true })
   active?: boolean;
+
+  @Column({ type: "boolean", default: false })
+  boosted?: boolean;
 }
