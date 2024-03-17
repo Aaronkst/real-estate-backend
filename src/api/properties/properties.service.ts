@@ -66,12 +66,18 @@ export class PropertiesService {
       // prepare where conditions
       const where: ObjectLiteral = { ...findOptions };
 
-      if (fromprice && toprice) {
-        where.price = Between(parseFloat(fromprice), parseFloat(toprice));
+      if (toprice) {
+        where.price = Between(
+          fromprice ? parseFloat(fromprice) : 0,
+          parseFloat(toprice),
+        );
       }
 
-      if (frombed && tobed) {
-        where.bedrooms = Between(parseFloat(frombed), parseFloat(tobed));
+      if (tobed) {
+        where.bedrooms = Between(
+          frombed ? parseFloat(frombed) : 0,
+          parseFloat(tobed),
+        );
       }
 
       if (where.bathrooms) where.bathrooms = MoreThan(where.bathrooms);
