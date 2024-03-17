@@ -78,7 +78,7 @@ export class PropertiesController {
     }
   }
 
-  @Get("/list")
+  @Post("/list")
   async list(@Query() query: PropertiesListDto): Promise<ISuccessResponse> {
     try {
       return {
