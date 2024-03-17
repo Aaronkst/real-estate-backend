@@ -96,9 +96,15 @@ export class CreateRentListDto extends CreateListingDto {
 
 export class PropertiesListDto {
   skip?: string;
-  listingType?: string;
-  price?: string;
-  bedrooms?: string;
-  bathrooms?: string;
-  carparks?: string;
+  listingType?: IPropertyTypes;
+  fromprice?: string;
+  toprice?: string;
+  frombed?: string;
+  tobed?: string;
+  bathrooms?: number;
+  carparks?: number;
+  outdoorfeatures?: string[] | string;
+  indoorfeatures?: string[] | string;
+  climate?: string[] | string;
+  keywords?: string[] | string;
 }
