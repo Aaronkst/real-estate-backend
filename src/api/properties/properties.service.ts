@@ -2,7 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { IPropertyInsert, IPropertyList } from "./properties.interface";
 
 import { InjectRepository } from "@nestjs/typeorm";
-import { Between, In, MoreThan, ObjectLiteral, Repository } from "typeorm";
+import {
+  Between,
+  In,
+  Like,
+  MoreThan,
+  ObjectLiteral,
+  Repository,
+} from "typeorm";
 import { Properties } from "./properties.entity";
 import { Users } from "../users/users.entity";
 import { PropertiesListDto } from "./properties.dtos";
@@ -50,6 +57,7 @@ export class PropertiesService {
 
   async list({
     skip,
+    name,
     fromprice,
     toprice,
     frombed,
@@ -78,6 +86,10 @@ export class PropertiesService {
           frombed ? parseFloat(frombed) : 0,
           parseFloat(tobed),
         );
+      }
+
+      if (name) {
+        where.name = Like(name);
       }
 
       if (where.bathrooms) where.bathrooms = MoreThan(where.bathrooms);

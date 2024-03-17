@@ -96,6 +96,7 @@ export class CreateRentListDto extends CreateListingDto {
 
 export class PropertiesListDto {
   skip?: string;
+  name?: string;
   listingType?: IPropertyTypes;
   fromprice?: string;
   toprice?: string;
