@@ -109,3 +109,7 @@ export class PropertiesListDto {
   climate?: string[] | string;
   keywords?: string[] | string;
 }
+
+export class PropertiesFindDto {
+  id: string;
+}

@@ -16,6 +16,7 @@ import {
   CreateSaleListDto,
   CreateRentListDto,
   PropertiesListDto,
+  PropertiesFindDto,
 } from "./properties.dtos";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { Properties } from "./properties.entity";
@@ -79,11 +80,11 @@ export class PropertiesController {
   }
 
   @Post("/list")
-  async list(@Query() query: PropertiesListDto): Promise<ISuccessResponse> {
+  async list(@Body() body: PropertiesListDto): Promise<ISuccessResponse> {
     try {
       return {
         status: "success",
-        data: await this.properties.list(query),
+        data: await this.properties.list(body),
         timestamp: new Date().getTime(),
       };
     } catch (e) {
@@ -96,11 +97,11 @@ export class PropertiesController {
   }
 
   @Get("/find")
-  async find(@Request() req): Promise<ISuccessResponse> {
+  async find(@Query() query: PropertiesFindDto): Promise<ISuccessResponse> {
     try {
       return {
         status: "success",
-        data: await this.properties.find(req.user.id),
+        data: await this.properties.find(query.id),
         timestamp: new Date().getTime(),
       };
     } catch (e) {
