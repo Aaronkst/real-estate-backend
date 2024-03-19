@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from "typeorm";
 import {
   IPropertySaleEstablished,
@@ -13,6 +14,7 @@ import {
   IPropertyTypes,
 } from "./properties.interface";
 import { Users } from "../users/users.entity";
+import { Likes } from "../likes/likes.entity";
 
 @Entity()
 export class Properties {
@@ -22,6 +24,9 @@ export class Properties {
   @ManyToOne(() => Users, (user) => user.id)
   @JoinColumn({ name: "list_by" })
   listBy: Users;
+
+  @Column({ type: "text", array: true, default: [] })
+  likes: string[];
 
   @Column()
   name: string;

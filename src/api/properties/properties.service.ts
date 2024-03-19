@@ -2,23 +2,19 @@ import { Injectable } from "@nestjs/common";
 import { IPropertyInsert, IPropertyList } from "./properties.interface";
 
 import { InjectRepository } from "@nestjs/typeorm";
-import {
-  Between,
-  In,
-  Like,
-  MoreThan,
-  ObjectLiteral,
-  Repository,
-} from "typeorm";
+import { Between, Like, MoreThan, ObjectLiteral, Repository } from "typeorm";
 import { Properties } from "./properties.entity";
 import { Users } from "../users/users.entity";
 import { PropertiesListDto } from "./properties.dtos";
+import { Likes } from "../likes/likes.entity";
+import { LikesService } from "../likes/likes.service";
 
 @Injectable()
 export class PropertiesService {
   constructor(
     @InjectRepository(Properties)
     private properties: Repository<Properties>,
+    private likes: LikesService,
   ) {}
 
   async addSale(
@@ -98,6 +94,7 @@ export class PropertiesService {
       // make basic query before array comparing conditions
       const query = this.properties
         .createQueryBuilder("properties")
+        // .leftJoinAndSelect("properties.likes", "likes")
         .leftJoinAndSelect("properties.listBy", "users")
         .where({
           ...where,
@@ -161,6 +158,30 @@ export class PropertiesService {
       if (!properties.affected) throw new Error("Not updated");
       return this.properties.findOneBy({ id });
     } catch (e) {
+      throw e;
+    }
+  }
+
+  async like(id: string, currentUser: Users): Promise<Properties> {
+    try {
+      const u = new Users();
+      u.id = currentUser.id;
+      const p = new Properties();
+      p.id = id;
+      const like = await this.likes.add(u, p);
+
+      const properties = await this.properties.findOneBy({ id });
+
+      const update = await this.properties.update(id, {
+        likes: [...properties.likes, like.id],
+      });
+      if (!update.affected) throw new Error("Not updated");
+      return this.properties
+        .createQueryBuilder("properties")
+        .leftJoinAndSelect("properties.listBy", "users")
+        .getOne();
+    } catch (e) {
+      console.log("properties service e:", e);
       throw e;
     }
   }

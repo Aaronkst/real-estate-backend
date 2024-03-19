@@ -33,14 +33,13 @@ export class PropertiesController {
     @Body() payload: CreateSaleListDto,
   ): Promise<ISuccessResponse> {
     try {
-      const { user } = req;
       return {
         status: "success",
         data: await this.properties.addSale(
           {
             ...payload,
           },
-          user,
+          req.user,
         ),
         timestamp: new Date().getTime(),
       };
@@ -60,14 +59,13 @@ export class PropertiesController {
     @Body() payload: CreateRentListDto,
   ): Promise<ISuccessResponse> {
     try {
-      const { user } = req;
       return {
         status: "success",
         data: await this.properties.addRent(
           {
             ...payload,
           },
-          user,
+          req.user,
         ),
         timestamp: new Date().getTime(),
       };
@@ -122,6 +120,27 @@ export class PropertiesController {
       return {
         status: "success",
         data: await this.properties.update(payload.id, payload),
+        timestamp: new Date().getTime(),
+      };
+    } catch (e) {
+      console.log(e);
+      throw new HttpException(
+        "Internal Server Error",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("/like")
+  async like(
+    @Body() { id }: { id: string },
+    @Request() req,
+  ): Promise<ISuccessResponse> {
+    try {
+      return {
+        status: "success",
+        data: await this.properties.like(id, req.user),
         timestamp: new Date().getTime(),
       };
     } catch (e) {
