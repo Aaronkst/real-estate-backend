@@ -111,6 +111,23 @@ export class PropertiesController {
     }
   }
 
+  @Get("/my")
+  async my(@Request() req): Promise<ISuccessResponse> {
+    try {
+      return {
+        status: "success",
+        data: await this.properties.my(req.user.id),
+        timestamp: new Date().getTime(),
+      };
+    } catch (e) {
+      console.log(e);
+      throw new HttpException(
+        "Internal Server Error",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post("/update")
   async update(

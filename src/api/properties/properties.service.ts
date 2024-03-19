@@ -151,6 +151,18 @@ export class PropertiesService {
     }
   }
 
+  async my(id: string): Promise<Properties[]> {
+    try {
+      const properties = await this.properties.find({
+        where: { listBy: { id } },
+      });
+
+      return properties;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async update(id: string, payload: Partial<Properties>): Promise<Properties> {
     try {
       delete payload.id;
