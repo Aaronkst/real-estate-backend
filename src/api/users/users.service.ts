@@ -11,6 +11,7 @@ import { Repository } from "typeorm";
 import { Users } from "./users.entity";
 import { JwtService } from "@nestjs/jwt";
 import { randomUUID } from "crypto";
+import { uploadFile } from "src/lib/storage";
 
 @Injectable()
 export class UsersService {
@@ -32,15 +33,20 @@ export class UsersService {
 
   async list(): Promise<IUserList> {
     try {
+      const select = {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        type: true,
+        isAgent: true,
+        refreshToken: true,
+        createdAt: true,
+        updatedAt: true,
+        active: true,
+      };
       const users = await this.users.find({
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          createdAt: true,
-          updatedAt: true,
-          active: true,
-        },
+        select,
         order: {
           createdAt: "ASC",
         },
@@ -75,10 +81,19 @@ export class UsersService {
 
   async find(id: string): Promise<Users> {
     try {
-      const users = await this.users.findOneBy({ id });
-      delete users.password;
-
-      return users;
+      const select = {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        type: true,
+        isAgent: true,
+        refreshToken: true,
+        createdAt: true,
+        updatedAt: true,
+        active: true,
+      };
+      return this.users.findOne({ where: { id }, select });
     } catch (e) {
       throw e;
     }
@@ -89,7 +104,44 @@ export class UsersService {
       delete payload.id;
       const user = await this.users.update(id, payload);
       if (!user.affected) throw new Error("Not updated");
-      return this.users.findOneBy({ id });
+
+      const select = {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        type: true,
+        isAgent: true,
+        refreshToken: true,
+        createdAt: true,
+        updatedAt: true,
+        active: true,
+      };
+      return this.users.findOne({ where: { id }, select });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async uploadImage(id: string, image: Express.Multer.File): Promise<Users> {
+    try {
+      const upload = await uploadFile(image, "user");
+      const user = await this.users.update(id, { image: upload });
+      if (!user.affected) throw new Error("Not updated");
+
+      const select = {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        type: true,
+        isAgent: true,
+        refreshToken: true,
+        createdAt: true,
+        updatedAt: true,
+        active: true,
+      };
+      return this.users.findOne({ where: { id }, select });
     } catch (e) {
       throw e;
     }
@@ -126,7 +178,22 @@ export class UsersService {
       });
       if (!isValidToken) throw new Error("Invalid Token");
 
-      const user = await this.users.findOne({ where: { refreshToken: token } });
+      const select = {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        type: true,
+        isAgent: true,
+        refreshToken: true,
+        createdAt: true,
+        updatedAt: true,
+        active: true,
+      };
+      const user = await this.users.findOne({
+        where: { refreshToken: token },
+        select,
+      });
       if (!user) throw new Error("Invalid Token");
 
       const expiredAt = new Date();
