@@ -14,7 +14,7 @@ export class LikesService {
 
   async add(user: Users, property: Properties): Promise<Likes> {
     try {
-      const like = this.likes.findOne({
+      const like = await this.likes.findOne({
         where: { user: { id: user.id }, property: { id: property.id } },
       });
       if (like) throw new Error("Already liked!");
