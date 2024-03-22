@@ -193,7 +193,28 @@ export class PropertiesService {
         .leftJoinAndSelect("properties.listBy", "users")
         .getOne();
     } catch (e) {
-      console.log("properties service e:", e);
+      throw e;
+    }
+  }
+
+  async unlike(id: string, currentUser: Users): Promise<Properties> {
+    try {
+      const unlike = await this.likes.delete(currentUser.id, id);
+
+      const properties = await this.properties.findOneBy({ id });
+      const likes = [...properties.likes];
+
+      likes.splice(likes.indexOf(unlike));
+
+      const update = await this.properties.update(id, {
+        likes,
+      });
+      if (!update.affected) throw new Error("Not updated");
+      return this.properties
+        .createQueryBuilder("properties")
+        .leftJoinAndSelect("properties.listBy", "users")
+        .getOne();
+    } catch (e) {
       throw e;
     }
   }

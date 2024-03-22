@@ -168,4 +168,25 @@ export class PropertiesController {
       );
     }
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("/unlike")
+  async unlike(
+    @Body() { id }: { id: string },
+    @Request() req,
+  ): Promise<ISuccessResponse> {
+    try {
+      return {
+        status: "success",
+        data: await this.properties.unlike(id, req.user),
+        timestamp: new Date().getTime(),
+      };
+    } catch (e) {
+      console.log(e);
+      throw new HttpException(
+        "Internal Server Error",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
