@@ -7,7 +7,7 @@ export type IPropertySaleEstablished = "new" | "established";
 export type IPropertySaleMethod = "private" | "auction";
 
 export type IPropertyList = {
-  properties: Properties[];
+  properties: (Properties & { isLiked?: boolean })[];
   count: number;
   next: number;
 };

@@ -62,9 +62,12 @@ export class PropertiesService {
     indoorfeatures,
     climate,
     keywords,
+    liked,
+    user,
     ...findOptions
   }: PropertiesListDto): Promise<IPropertyList> {
     try {
+      if (liked && !user) throw new Error("Not Authorized");
       const next = (skip ? parseInt(skip) : 0) + 25;
 
       // prepare where conditions
@@ -121,8 +124,13 @@ export class PropertiesService {
         });
       }
       if (keywords) {
-        query.where("properties.keywords @> (:features)", {
-          features: Array.isArray(keywords) ? keywords : [keywords],
+        query.where("properties.keywords @> (:keywords)", {
+          keywords: Array.isArray(keywords) ? keywords : [keywords],
+        });
+      }
+      if (liked) {
+        query.where("properties.likes @> (:likes)", {
+          likes: [user],
         });
       }
 
@@ -185,7 +193,7 @@ export class PropertiesService {
       const properties = await this.properties.findOneBy({ id });
 
       const update = await this.properties.update(id, {
-        likes: [...properties.likes, like.id],
+        likes: [...properties.likes, u.id],
       });
       if (!update.affected) throw new Error("Not updated");
       return this.properties
@@ -204,7 +212,7 @@ export class PropertiesService {
       const properties = await this.properties.findOneBy({ id });
       const likes = [...properties.likes];
 
-      likes.splice(likes.indexOf(unlike));
+      likes.splice(likes.indexOf(currentUser.id));
 
       const update = await this.properties.update(id, {
         likes,

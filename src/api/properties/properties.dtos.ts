@@ -108,6 +108,8 @@ export class PropertiesListDto {
   indoorfeatures?: string[] | string;
   climate?: string[] | string;
   keywords?: string[] | string;
+  liked?: boolean;
+  user?: string;
 }
 
 export class PropertiesFindDto {
