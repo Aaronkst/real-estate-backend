@@ -10,10 +10,11 @@ import {
   Put,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { ISuccessResponse } from "../../app.interface";
-import { CreateUserDto } from "./users.dtos";
+import { CreateUserDto, FindUserDto, ListUserDto } from "./users.dtos";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
 
@@ -42,11 +43,11 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get("/list")
-  async list(): Promise<ISuccessResponse> {
+  async list(@Query() { skip }: ListUserDto): Promise<ISuccessResponse> {
     try {
       return {
         status: "success",
-        data: await this.users.list(),
+        data: await this.users.list(skip),
         timestamp: new Date().getTime(),
       };
     } catch (e) {
@@ -60,11 +61,11 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get("/find")
-  async find(@Request() req): Promise<ISuccessResponse> {
+  async find(@Query() { id }: FindUserDto): Promise<ISuccessResponse> {
     try {
       return {
         status: "success",
-        data: await this.users.find(req.user.id),
+        data: await this.users.find(id),
         timestamp: new Date().getTime(),
       };
     } catch (e) {
@@ -76,23 +77,23 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get("/listGist")
-  async listUserGist(): Promise<ISuccessResponse> {
-    try {
-      return {
-        status: "success",
-        data: await this.users.listGist(),
-        timestamp: new Date().getTime(),
-      };
-    } catch (e) {
-      console.log(e);
-      throw new HttpException(
-        "Internal Server Error",
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Get("/listGist")
+  // async listUserGist(): Promise<ISuccessResponse> {
+  //   try {
+  //     return {
+  //       status: "success",
+  //       data: await this.users.listGist(),
+  //       timestamp: new Date().getTime(),
+  //     };
+  //   } catch (e) {
+  //     console.log(e);
+  //     throw new HttpException(
+  //       "Internal Server Error",
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Post("/update")

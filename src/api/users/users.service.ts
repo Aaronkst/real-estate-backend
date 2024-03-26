@@ -31,26 +31,22 @@ export class UsersService {
     }
   }
 
-  async list(): Promise<IUserList> {
+  async list(skip?: string): Promise<IUserList> {
     try {
-      const select = {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        type: true,
-        isAgent: true,
-        refreshToken: true,
-        createdAt: true,
-        updatedAt: true,
-        active: true,
-      };
-      const users = await this.users.find({
-        select,
-        order: {
-          createdAt: "ASC",
-        },
-      });
+      // const users = await this.users.find({
+      //   select,
+      //   order: {
+      //     createdAt: "ASC",
+      //   },
+      // });
+
+      const users = await this.users
+        .createQueryBuilder("users")
+        .leftJoinAndSelect("users.contact", "contacts")
+        .skip(skip ? parseInt(skip) : 0)
+        .take(25)
+        .orderBy("users.createdAt", "ASC")
+        .getMany();
 
       return { users, count: users.length };
     } catch (e) {
@@ -58,42 +54,35 @@ export class UsersService {
     }
   }
 
-  async listGist(): Promise<IUserList> {
-    try {
-      const users = await this.users.find({
-        where: {
-          active: true,
-        },
-        select: {
-          id: true,
-          name: true,
-        },
-        order: {
-          createdAt: "ASC",
-        },
-      });
+  // async listGist(): Promise<IUserList> {
+  //   try {
+  //     const users = await this.users.find({
+  //       where: {
+  //         active: true,
+  //       },
+  //       select: {
+  //         id: true,
+  //         name: true,
+  //       },
+  //       order: {
+  //         createdAt: "ASC",
+  //       },
+  //     });
 
-      return { users, count: users.length };
-    } catch (e) {
-      throw e;
-    }
-  }
+  //     return { users, count: users.length };
+  //   } catch (e) {
+  //     throw e;
+  //   }
+  // }
 
   async find(id: string): Promise<Users> {
     try {
-      const select = {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        type: true,
-        isAgent: true,
-        refreshToken: true,
-        createdAt: true,
-        updatedAt: true,
-        active: true,
-      };
-      return this.users.findOne({ where: { id }, select });
+      return await this.users
+        .createQueryBuilder("users")
+        .leftJoinAndSelect("users.contact", "contacts")
+        .where("users.id::text = :id", { id })
+        .orderBy("users.createdAt", "ASC")
+        .getOne();
     } catch (e) {
       throw e;
     }
@@ -104,20 +93,28 @@ export class UsersService {
       delete payload.id;
       const user = await this.users.update(id, payload);
       if (!user.affected) throw new Error("Not updated");
+      return await this.users
+        .createQueryBuilder("users")
+        .leftJoinAndSelect("users.contact", "contacts")
+        .where("users.id::text = :id", { id })
+        .orderBy("users.createdAt", "ASC")
+        .getOne();
+    } catch (e) {
+      throw e;
+    }
+  }
 
-      const select = {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        type: true,
-        isAgent: true,
-        refreshToken: true,
-        createdAt: true,
-        updatedAt: true,
-        active: true,
-      };
-      return this.users.findOne({ where: { id }, select });
+  async addContact(): Promise<Users> {
+    try {
+      return;
+      // const user = await this.users.update(id, payload);
+      // if (!user.affected) throw new Error("Not updated");
+      // return await this.users
+      //   .createQueryBuilder("users")
+      //   .leftJoinAndSelect("users.contact", "contacts")
+      //   .where("users.id::text = :id", { id })
+      //   .orderBy("users.createdAt", "ASC")
+      //   .getOne();
     } catch (e) {
       throw e;
     }
@@ -128,20 +125,12 @@ export class UsersService {
       const upload = await uploadFile(image, "user");
       const user = await this.users.update(id, { image: upload });
       if (!user.affected) throw new Error("Not updated");
-
-      const select = {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        type: true,
-        isAgent: true,
-        refreshToken: true,
-        createdAt: true,
-        updatedAt: true,
-        active: true,
-      };
-      return this.users.findOne({ where: { id }, select });
+      return await this.users
+        .createQueryBuilder("users")
+        .leftJoinAndSelect("users.contact", "contacts")
+        .where("users.id::text = :id", { id })
+        .orderBy("users.createdAt", "ASC")
+        .getOne();
     } catch (e) {
       throw e;
     }
@@ -149,12 +138,19 @@ export class UsersService {
 
   async validateUser(email: string, password: string): Promise<IUserPublic> {
     try {
-      const user = await this.users.findOneBy({ email, active: true });
+      const user = await this.users.findOne({
+        where: { email, active: true },
+        select: { id: true, password: true },
+      });
       if (!user) throw new Error("Invalid User");
       const isValid: boolean = await user.validatePassword(password);
       if (!isValid) throw new Error("Invalid Password");
-      if (user.password) delete user.password;
-      return user;
+      return await this.users
+        .createQueryBuilder("users")
+        .leftJoinAndSelect("users.contact", "contacts")
+        .where("users.id::text = :id", { id: user.id })
+        .orderBy("users.createdAt", "ASC")
+        .getOne();
     } catch (e) {
       throw e;
     }
@@ -177,22 +173,8 @@ export class UsersService {
         secret: process.env.JWT_SECRET,
       });
       if (!isValidToken) throw new Error("Invalid Token");
-
-      const select = {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        type: true,
-        isAgent: true,
-        refreshToken: true,
-        createdAt: true,
-        updatedAt: true,
-        active: true,
-      };
-      const user = await this.users.findOne({
-        where: { refreshToken: token },
-        select,
+      const user = await this.users.findOneBy({
+        refreshToken: token,
       });
       if (!user) throw new Error("Invalid Token");
 
@@ -213,7 +195,12 @@ export class UsersService {
       const refreshPayload = { token: refreshToken };
 
       return {
-        user,
+        user: await this.users
+          .createQueryBuilder("users")
+          .leftJoinAndSelect("users.contact", "contacts")
+          .where("users.id::text = :id", { id: user.id })
+          .orderBy("users.createdAt", "ASC")
+          .getOne(),
         token: {
           access: {
             token: this.jwtService.sign(accessPayload, { expiresIn: "24h" }),

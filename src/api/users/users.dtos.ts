@@ -13,3 +13,12 @@ export class CreateUserDto {
 
   isAgent?: boolean;
 }
+
+export class ListUserDto {
+  skip?: string;
+}
+
+export class FindUserDto {
+  @IsNotEmpty()
+  id: string;
+}

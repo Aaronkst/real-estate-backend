@@ -9,9 +9,12 @@ import {
   AfterUpdate,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
+  JoinColumn,
 } from "typeorm";
 import { hash, compare } from "bcrypt";
 import { IUserTypes } from "./users.interface";
+import { Contacts } from "../contact/contact.entity";
 
 @Entity()
 export class Users {
@@ -35,10 +38,14 @@ export class Users {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  @OneToOne(() => Contacts, (contact) => contact.id)
+  @JoinColumn()
+  contact?: Contacts;
+
   @Column()
   name: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @IsEmail()
@@ -51,8 +58,8 @@ export class Users {
   @Column({ nullable: true })
   type: IUserTypes;
 
-  @Column({ name: "is_agent", default: false, type: "boolean" })
-  isAgent?: boolean;
+  @Column({ name: "is_paid", default: false, type: "boolean" })
+  isPaid?: boolean;
 
   @Column({ nullable: true })
   refreshToken: string;
