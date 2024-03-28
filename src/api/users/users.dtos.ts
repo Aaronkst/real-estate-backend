@@ -11,7 +11,18 @@ export class CreateUserDto {
   @IsNotEmpty()
   email: string;
 
-  isAgent?: boolean;
+  isPaid?: boolean;
+
+  @IsNotEmpty()
+  phone: number;
+
+  @IsNotEmpty()
+  address: string;
+
+  address2?: string;
+
+  @IsNotEmpty()
+  identification: string;
 }
 
 export class ListUserDto {

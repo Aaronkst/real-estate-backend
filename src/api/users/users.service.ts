@@ -12,19 +12,45 @@ import { Users } from "./users.entity";
 import { JwtService } from "@nestjs/jwt";
 import { randomUUID } from "crypto";
 import { uploadFile } from "src/lib/storage";
+import { CreateUserDto } from "./users.dtos";
+import { Contacts } from "../contact/contact.entity";
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(Users)
     private users: Repository<Users>,
+
+    @InjectRepository(Contacts)
+    private contacts: Repository<Contacts>,
+
     private jwtService: JwtService,
   ) {}
 
-  async add(payload: IUserInsert): Promise<IUserPublic> {
+  async add(
+    payload: CreateUserDto & { files: Express.Multer.File[] },
+  ): Promise<IUserPublic> {
     try {
+      const { phone, address, address2, identification, files } = payload;
+
+      const C = new Contacts();
+      C.phone = phone;
+      C.address = address;
+      C.address2 = address2;
+      C.identificaton = identification;
+
+      /* 
+        Upload all files and append url's as array into C.files;
+      */
+
+      const savedC = await this.contacts.save(C);
+
+      const contact = new Contacts();
+      contact.id = savedC.id;
+
       const user = new Users();
       Object.keys(payload).forEach((key) => (user[key] = payload[key]));
+      user.contact = contact;
       return this.users.save(user);
     } catch (e) {
       throw e;

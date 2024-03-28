@@ -13,7 +13,6 @@ import {
   JoinColumn,
 } from "typeorm";
 import { hash, compare } from "bcrypt";
-import { IUserTypes } from "./users.interface";
 import { Contacts } from "../contact/contact.entity";
 
 @Entity()
@@ -38,7 +37,7 @@ export class Users {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @OneToOne(() => Contacts, (contact) => contact.id)
+  @OneToOne(() => Contacts, (contact) => contact.id, { nullable: true })
   @JoinColumn()
   contact?: Contacts;
 
@@ -54,9 +53,6 @@ export class Users {
 
   @Column({ nullable: true })
   image?: string;
-
-  @Column({ nullable: true })
-  type: IUserTypes;
 
   @Column({ name: "is_paid", default: false, type: "boolean" })
   isPaid?: boolean;

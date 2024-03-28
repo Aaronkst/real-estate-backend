@@ -11,12 +11,13 @@ import {
   UseInterceptors,
   UploadedFile,
   Query,
+  UploadedFiles,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { ISuccessResponse } from "../../app.interface";
 import { CreateUserDto, FindUserDto, ListUserDto } from "./users.dtos";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
-import { FileInterceptor } from "@nestjs/platform-express";
+import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 
 @Controller("api/users")
 export class UsersController {
@@ -24,12 +25,17 @@ export class UsersController {
 
   // @UseGuards(JwtAuthGuard)
   @Put("/register")
-  async add(@Body() payload: CreateUserDto): Promise<ISuccessResponse> {
+  @UseInterceptors(FilesInterceptor("files"))
+  async add(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() payload: CreateUserDto,
+  ): Promise<ISuccessResponse> {
     try {
       return {
         status: "success",
         data: await this.users.add({
           ...payload,
+          files,
         }),
         timestamp: new Date().getTime(),
       };

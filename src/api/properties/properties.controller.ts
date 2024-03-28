@@ -26,7 +26,8 @@ import { RoleGuard } from "src/auth/role-auth.guard";
 export class PropertiesController {
   constructor(private readonly properties: PropertiesService) {}
 
-  @UseGuards(JwtAuthGuard, new RoleGuard("owner"))
+  // @UseGuards(JwtAuthGuard, new RoleGuard("owner"))
+  @UseGuards(JwtAuthGuard)
   @Put("/register/sale")
   async addSale(
     @Request() req,
@@ -52,7 +53,8 @@ export class PropertiesController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, new RoleGuard("owner"))
+  // @UseGuards(JwtAuthGuard, new RoleGuard("owner"))
+  @UseGuards(JwtAuthGuard)
   @Put("/register/rent")
   async addRent(
     @Request() req,
@@ -111,6 +113,7 @@ export class PropertiesController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get("/my")
   async my(@Request() req): Promise<ISuccessResponse> {
     try {
