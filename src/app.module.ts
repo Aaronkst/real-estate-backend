@@ -13,6 +13,8 @@ import { Likes } from "./api/likes/likes.entity";
 import { Properties } from "./api/properties/properties.entity";
 import { PropertiesModule } from "./api/properties/properties.module";
 
+import { Contacts } from "./api/contact/contact.entity";
+
 import { AuthModule } from "./auth/auth.module";
 
 import { ServeStaticModule } from "@nestjs/serve-static";
@@ -32,7 +34,7 @@ const DATABASE: DynamicModule = TypeOrmModule.forRoot({
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  entities: [Users, Likes, Properties],
+  entities: [Users, Likes, Properties, Contacts],
   synchronize: true,
 });
 
