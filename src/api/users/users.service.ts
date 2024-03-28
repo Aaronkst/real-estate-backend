@@ -51,7 +51,14 @@ export class UsersService {
       const user = new Users();
       Object.keys(payload).forEach((key) => (user[key] = payload[key]));
       user.contact = contact;
-      return this.users.save(user);
+
+      const savedU = await this.users.save(user);
+      return await this.users
+        .createQueryBuilder("users")
+        .leftJoinAndSelect("users.contact", "contacts")
+        .where("users.id::text = :id", { id: savedU.id })
+        .orderBy("users.createdAt", "ASC")
+        .getOne();
     } catch (e) {
       throw e;
     }
